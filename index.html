@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="main.css">
+  <script type="module" src="main.mjs" defer></script>
+</head>
+
+<body>
+  <div class="wrapper pywebview-drag-region">
+    <main id="app">
+      <div class="output-ctrl">
+        <div class="data">
+          <span class="operation"></span>
+        </div>
+      </div>
+      <div>
+        <div class="input-ctrl grid">
+          <button type="button" data-capture data-id="clear" class="action-ctrl">C</button>
+          <button type="button" data-capture data-id="clear-env" class="action-ctrl">CE</button>
+          <button type="button" data-capture data-id="%" class="op-ctrl">%</button>
+          <button type="button" data-capture data-id="=" class="op-special">=</button>
+          <button type="button" data-capture data-id="7" class="op-num">7</button>
+          <button type="button" data-capture data-id="8" class="op-num">8</button>
+          <button type="button" data-capture data-id="9" class="op-num">9</button>
+          <button type="button" data-capture data-id="+" class="op-ctrl">+</button>
+          <button type="button" data-capture data-id="4" class="op-num">4</button>
+          <button type="button" data-capture data-id="5" class="op-num">5</button>
+          <button type="button" data-capture data-id="6" class="op-num">6</button>
+          <button type="button" data-capture data-id="-" class="op-ctrl">-</button>
+          <button type="button" data-capture data-id="1" class="op-num">1</button>
+          <button type="button" data-capture data-id="2" class="op-num">2</button>
+          <button type="button" data-capture data-id="3" class="op-num">3</button>
+          <button type="button" data-capture data-id="/" class="op-ctrl">/</button>
+          <button type="button" data-capture data-id="0" class="op-num">0</button>
+          <button type="button" data-capture data-id="0." class="op-num">0.</button>
+          <button type="button" data-capture data-id="00" class="op-num">00</button>
+          <button type="button" data-capture data-id="*" class="op-ctrl">*</button>
+        </div>
+    </main>
+  </div>
+</body>
+
+</html>
