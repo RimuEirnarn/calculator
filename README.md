@@ -8,7 +8,7 @@ Clone this repo then you can access it directly, host a simple file-server with 
 
 ### Or... use this one:
 
-Visit [https://rimueirnarn.github.io/calculator](this page)
+Visit (https://rimueirnarn.github.io/calculator)[this page]
 
 ## History
 
