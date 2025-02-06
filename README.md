@@ -14,4 +14,6 @@ Visit [this page](https://rimueirnarn.github.io/calculator)
 
 Why did I even bother... Anyway, it was originated when my teacher started saying about some future tasks. I want to see how 'hard' is it when making a simple calculator using HTML, CSS, and JavaScript. It took me around 4 hours to make.
 
+> Is this app has bugs?
+
 Yeah no shit sherlock, this app is full of bugs. No wonder it took 4 hours. It's just a Proof-of-concept.
