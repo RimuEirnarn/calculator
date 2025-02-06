@@ -6,6 +6,8 @@ Yeah, just a calculator. You shouldn't use this if you have another calculator. 
 
 Clone this repo, and then you can access it directly, host a simple file server with HTTP, use Pywebview (you can use main.py), or you can use whatever to access that index.html file.
 
+The only requirement is anything with CPU, Memory, display, web browser (or anything like webview), storage and internet connection (to clone this repo duh, not actually required if you already have it somewhere local and only need to copy it).
+
 ### Or... use this one:
 
 Visit [this page](https://rimueirnarn.github.io/calculator)
