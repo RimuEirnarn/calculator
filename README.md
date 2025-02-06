@@ -6,6 +6,10 @@ Yeah, just calculator. You shouldn't use this if you have other calculator. This
 
 Clone this repo then you can access it directly, host a simple file-server with HTTP, use pywebview (you can use main.py), or you can use whatever to access that index.html file.
 
+### Or... use this one:
+
+Visit [https://rimueirnarn.github.io/calculator](this page)
+
 ## History
 
 Why did I even bother... Anyway, it was originated when my teacher started saying about some future tasks. I want to see how 'hard' is it when making a simple calculator using HTML, CSS, and JavaScript. It took me around 4 hours to make.
