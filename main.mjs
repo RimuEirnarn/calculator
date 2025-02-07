@@ -45,6 +45,7 @@ const ACTIONS = {
   '*': () => push('*'),
   '/': () => push('/'),
   '%': () => push('%'),
+  '^': () => push('^'),
   'clear': () => {
     STACK.length = 0
     if (base)
