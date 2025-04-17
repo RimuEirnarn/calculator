@@ -1,14 +1,45 @@
+import { IOSystem } from "./iosystem.mjs";
 import { evaluate, isNumeric } from "./shunting_yard.mjs";
 
-const base = document.querySelector('.operation')
 
 const IGNORE_SPACE = ['.']
 const NO_FOLLOW = ['0', '00']
+/** @type {string[]} */
 const STACK = []
+const INPUT_BUFFER = "#input-buffer"
+const OUTPUT_BUFFER = "#output-buffer"
+const INPUT_PREVENT = ['Enter', 'Backspace', '/']
 
+const system = {
+  _stdout: null,
+  _stdin: null,
+
+  /**
+   * @returns {IOSystem}
+   */
+  get stdout() {
+    if (!this._stdout) {
+      this._stdout = new IOSystem(OUTPUT_BUFFER, 'wr')
+    }
+    return this._stdout
+  },
+
+  /**
+   * @returns {IOSystem}
+   */
+  get stdin() {
+    if (!this._stdin) {
+      this._stdin = new IOSystem(INPUT_BUFFER, 'wr')
+    }
+    return this._stdin
+  }
+}
+
+/**
+ * Actions control
+ */
 const ACTIONS = {
   '0.': () => {
-    if (!base) return;
     console.debug(STACK.at(-1), STACK.at(-1)[-1])
     if (STACK.at(-1) == '.') return;
     if (STACK.at(-1)[-1] == '.') return;
@@ -19,13 +50,28 @@ const ACTIONS = {
     push('.')
   },
   '=': () => {
-    if (!base) return;
-    console.log(STACK)
+    console.debug("Current Stack:", STACK)
     if (STACK.length != 0) {
+      try {
+        const evaluate_to = evaluate(STACK, true)
+        STACK.length = 0
+        system.stdin.clear()
+        system.stdin.write(evaluate_to)
+        STACK.push(evaluate_to.toString())
+      } catch (err) {
+        system.stdout.clear()
+        system.stdout.write('Error!')
+      }
+    }
+  },
+  'trace': () => {
+    if (STACK.length == 0) return;
+    try {
       const evaluate_to = evaluate(STACK, true)
-      STACK.length = 0
-      base.innerText = evaluate_to
-      STACK.push(evaluate_to.toString())
+      system.stdout.clear()
+      system.stdout.write(evaluate_to)
+    } catch (err) {
+      console.debug(":3")
     }
   },
   '00': () => push('00'),
@@ -48,31 +94,37 @@ const ACTIONS = {
   '^': () => push('^'),
   'clear': () => {
     STACK.length = 0
-    if (base)
-      base.innerText = ""
+    system.stdin.clear()
+    system.stdout.clear()
   },
-  'clear-env': () => {
-    STACK.length = 0
-    if (base)
-      base.innerText = ""
-  }
+  'clear-one': () => {
+    const prev = STACK.pop()
+    if (prev?.length >= 2)
+      STACK.push(prev.slice(0, -1))
+    // if (base)
+    //   base.innerText = base.innerText.slice(0, -1)
+    system.stdin.truncate(system.stdin.read().slice(0, -1).length)
+    system.stdout.clear()
+    ACTIONS.trace()
+  },
 }
 
+ACTIONS['c'] = ACTIONS.clear
+ACTIONS['.'] = ACTIONS['0.']
 
 /**
  * push to operation el
  * @param {string} text 
  */
 function push(text) {
-  if (!base) {
-    console.error("Base element (.operation) doesn't exists")
-    return
-  }
-  console.debug(STACK)
+  
+  console.debug("Current Stack:", STACK)
   if (IGNORE_SPACE.includes(text) || (isNumeric(text) && isNumeric(STACK.at(-1)))) {
     const prev = STACK.pop()
-    base.innerText += text
+    // base.innerText += text
+    system.stdin.write(text)
     STACK.push(prev + text)
+    ACTIONS.trace()
     return
   }
 
@@ -82,30 +134,55 @@ function push(text) {
     if (STACK.at(-1).includes('.') && isNumeric(text)) {
       const prev = STACK.pop()
       STACK.push(prev + text)
-      base.innerText += prev + text
+      // base.innerText += prev + text
+      system.stdin.write(prev + text)
+      ACTIONS.trace()
       return;
     }
   }
-  base.innerText += text + ' '
+  // base.innerText += text + ' '
+  system.stdin.write(text)
   STACK.push(text)
+  ACTIONS.trace()
   console.debug(STACK)
 }
 
 function capture_data() {
   document.querySelectorAll('[data-capture]').forEach(el => {
-    const val = el.getAttribute('data-id') || ''
+    const val = el.getAttribute('data-id') || el.innerText || ''
     el.addEventListener('click', () => {
-      console.log(`'${val}' is clicked`)
+      console.debug(`'${val}' is clicked`)
       if (val in ACTIONS)
         ACTIONS[val](el)
     })
-    console.log('Logging for this:', val)
+    console.debug('Logging for this:', val)
   })
-  console.log('capturing events')
+  console.debug('capturing events')
+}
+
+function initiate_keyinput() {
+  document.addEventListener('keydown', (event) => {
+    if (event.key in ACTIONS) {
+      ACTIONS[event.key]()
+    }
+
+    if (event.key == 'Enter') {
+      ACTIONS['=']()
+    }
+
+    if (event.key == "Backspace") {
+      ACTIONS['clear-one']()
+    }
+
+    if (INPUT_PREVENT.includes(event.key))
+      event.preventDefault()
+  })
 }
 
 function main() {
   capture_data()
+  initiate_keyinput()
+  window.system = system
 }
 
 main()
