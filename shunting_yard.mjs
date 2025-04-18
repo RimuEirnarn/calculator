@@ -63,25 +63,17 @@ function process(expr) {
       return
     }
 
-    if (val in functions) {
-      const fn = functions[val];
-      const argCount = fn.length;
-
-      if (stack.length < argCount)
-        throw new Error(`Function '${val}' expects ${argCount} arguments`);
-
-      const args = stack.splice(stack.length - argCount, argCount);
-      const result = fn(...args);
-      stack.push(result);
-      return;
-    }
-
     if (val in OPERATORS_PRECEDENCE) {
       while (stack.length != 0 && stack[-1] != '(' && get(stack.at(-1), 0) > OPERATORS_PRECEDENCE[val] || get(stack.at(-1), 0) == OPERATORS_PRECEDENCE[val] && !(val in RIGHT_ASSOCIATIVE))
         output.push(stack.pop())
       stack.push(val)
       last_was_num = false
       return
+    }
+
+    if (isFunction(val)) {
+      stack.push(val); // Keep function name on stack
+      return;
     }
 
     if (val == '(') {
@@ -159,6 +151,20 @@ function evaluate(expression, require_process = false) {
       let base = stack.pop();
       stack.push(base, base * (a / 100));  // Apply percentage correctly
       return
+    }
+
+    if (token in functions) {
+      console.debug(token)
+      const fn = functions[token];
+      const argCount = fn.length;
+
+      if (stack.length < argCount)
+        throw new Error(`Function '${token}' expects ${argCount} arguments`);
+
+      const args = stack.splice(stack.length - argCount, argCount);
+      const result = fn(...args);
+      stack.push(result);
+      return;
     }
 
     console.error('Invalid token:', token)
