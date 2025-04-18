@@ -47,7 +47,7 @@ function process(expr) {
         output.push('%p') // Percentage
         return
       }
-      output.push('%')
+      stack.push('%')
       return
     }
 
