@@ -44,7 +44,7 @@ function process(expr) {
 
     if (val == '%') {
       if (last_was_num && (index == expr_.length || !isNumeric((expr_.at(index + 1))))) {
-        output.push('%p') // Percentage
+        stack.push('%p') // Percentage
         return
       }
       stack.push('%')
