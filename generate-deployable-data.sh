@@ -4,4 +4,6 @@ if [ ! -d ./dist ]; then
     mkdir ./dist
 fi
 
-cp index.html main.css main.mjs shunting_yard.mjs dist/
+cp -r static /dist/
+cp index.html /dist/
+cp about.html /dist/
