@@ -1,17 +1,36 @@
 :root {
   --font-size: 14px;
   --font-family: 'Fira Code', monospace;
+
+  --height: 100dvh;
+  --btn-margin: 0.125rem;
+  --btn-rl-padding: 1.5rem;
+  --btn-tb-padding: 2.5rem;
+  --btn-font-size: large;
+
+  --output-fs: xxx-large;
+  --input-fs: x-large;
+
+  --io-height: 25dvh;
+  --control-height: 75dvh;
+
+  --content-width: 75%;
+  --history-width: 25%;
+
+  --primary: #9FB3DF;
+  --highlight: #9EC6F3;
+  --btn-operator: #BDDDE4;
 }
 
 button[data-capture] {
   border: 0;
-  padding: 1.25rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  margin: 0.125rem;
+  padding: var(--btn-tb-padding);
+  padding-left: var(--btn-rl-padding);
+  padding-right: var(--btn-rl-padding);
+  margin: var(--btn-margin);
   border-radius: 4px;
+  font-size: var(--btn-font-size);
   pointer-events: all;
-  color: lightgrey;
 }
 
 .grid {
@@ -21,7 +40,42 @@ button[data-capture] {
   grid-template-columns: repeat(4, 4rem);
 }
 
-.wrapper {
+.flex-grid {
+  display: flex;
+  display: flex;
+  gap: 0px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.flex-row {
+  display: flex;
+  gap: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  height: 20%;
+}
+
+.flex-row>button {
+  flex-grow: 1;
+  box-sizing: border-box;
+  width: calc(25% - var(--btn-margin) - var(--btn-rl-padding));
+  /* max-width: calc(25% - var(--btn-margin) - var(--btn-rl-padding)); */
+  min-width: calc(25% - var(--btn-margin) - var(--btn-rl-padding));
+
+  background-color: var(--btn-operator);
+  color: black;
+  cursor: pointer;
+}
+
+/* .wrapper {
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -29,77 +83,95 @@ button[data-capture] {
   align-items: center;
   align-self: center;
   margin: auto;
-}
+} */
 
 #app {
-  background-color: darkslategrey;
-  color: beige;
+  display: flex;
+  background-color: var(--primary);
+  color: black;
 
-  width: fit-content;
-  padding: 0.5rem;
+  width: 100%;
+  max-width: 100%;
   font-size: medium;
-  border-radius: 8px;
+  gap: 0.25dvw;
 }
 
-.output-ctrl {
-  padding-top: .25rem;
-  padding-bottom: .25rem;
+#calc,
+#history {
+  margin: 0;
+  background-color: var(--primary);
+}
 
-  margin-bottom: 0.75rem;
-  margin-top: 0.25rem;
+#calc {
+  box-sizing: border-box;
+  max-width: var(--content-width);
+  min-width: var(--content-width);
+  min-height: var(--height);
+  max-height: var(--height);
+  padding: 0.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#history {
+  box-sizing: border-box;
+  max-width: var(--history-width);
+  min-width: var(--history-width);
+  min-height: var(--height);
+  max-height: var(--height);
+}
+
+
+.output-ctrl {
+  /* margin-bottom: 0.75rem;
+  margin-top: 0.25rem; */
+
+  max-height: var(--io-height);
+  min-height: var(--io-height);
+  height: var(--io-height);
+}
+
+.input-ctrl {
+  height: var(--control-height);
+  max-height: var(--control-height);
+  min-height: var(--control-height);
+
+  padding-bottom: 0.25rem;
+  box-sizing: border-box;
 }
 
 .data {
   width: 100%;
-  min-height: 4rem;
-  max-height: 4rem;
+  min-height: var(--io-height);
+  height: var(--io-height);
 
-  background-color: darkslateblue;
+  /* background-color: darkslateblue; */
+  background-color: var(--primary);
+  color: black;
 }
 
-#input-buffer, #output-buffer {
-  min-height: 2rem;
-  max-height: 2rem;
+#input-buffer,
+#output-buffer {
+  min-height: 50%;
+  max-height: 50%;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
 
 #output-buffer {
+  font-size: var(--output-fs);
+  text-align: end;
+  align-content: end;
+}
+
+#input-buffer {
+  font-size: var(--input-fs);
   text-align: end;
 }
 
 .op-special {
-  background-color: yellow;
+  background-color: var(--highlight) !important;
 }
-
-.op-ctrl {
-  background-color: darkviolet;
-}
-
-.action-ctrl {
-  background-color: darkcyan;
-}
-
-.action-ctrl:hover {
-  background-color: dodgerblue;
-}
-
-.op-ctrl:hover {
-  background-color: darkorchid;
-}
-
-.op-special:hover {
-  background-color: orange;
-}
-
-.op-num {
-  background-color: cornflowerblue;
-}
-
-.op-num:hover {
-  background-color: lightseagreen;
-}
-
 
 html,
 body {
@@ -111,8 +183,86 @@ body {
   font-size: var(--font-size);
   font-family: var(--font-family);
   background-color: rgba(0, 0, 0, 0);
+  overflow: hidden;
 }
 
 .pywebview-drag-region {
-	background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0);
+  resize: both;
+}
+
+.pywebview {
+  border-radius: 4px;
+}
+
+/* Style for the result container */
+.result-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 5px 0;
+  background-color: var(--primary);
+}
+
+/* Style for the context menu */
+.context-menu {
+  display: none;
+  background-color: var(--primary);
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 5px;
+  z-index: 1000;
+}
+
+/* Style for menu buttons */
+.menu-btn {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menu-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* Fade-out animation for removal */
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+}
+
+/* Copy feedback styling */
+.copy-feedback {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  font-size: 0.8em;
+  color: green;
+  background: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

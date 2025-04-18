@@ -1,6 +1,7 @@
+import { randomString, HistoryEntries } from "./history.mjs";
 import { IOSystem } from "./iosystem.mjs";
 import { evaluate, isNumeric } from "./shunting_yard.mjs";
-
+import { createResultDiv } from "./contextmanager.mjs";
 
 const IGNORE_SPACE = ['.']
 const NO_FOLLOW = ['0', '00']
@@ -9,6 +10,25 @@ const STACK = []
 const INPUT_BUFFER = "#input-buffer"
 const OUTPUT_BUFFER = "#output-buffer"
 const INPUT_PREVENT = ['Enter', 'Backspace', '/']
+const history_selector = "#history"
+const history = new HistoryEntries()
+
+history.register_push((x) => {
+  const hist = document.querySelector(history_selector)
+  if (!hist) {
+    console.warn("DOM for history is not found")
+    return
+  }
+  const rendered = createResultDiv(x, (e) => {
+    system.stdin.clear()
+    system.stdin.write(x.stdin)
+    STACK.length = 0
+    STACK.push(...x.expr)
+    system.stdout.clear()
+    system.stdout.write(x.result)
+  })
+  hist.appendChild(rendered)
+})
 
 const system = {
   _stdout: null,
@@ -54,6 +74,7 @@ const ACTIONS = {
     if (STACK.length != 0) {
       try {
         const evaluate_to = evaluate(STACK, true)
+        history.push({id: randomString(16), expr: [...STACK], stdin: system.stdin.read(), result: evaluate_to})
         STACK.length = 0
         system.stdin.clear()
         system.stdin.write(evaluate_to)
@@ -117,7 +138,7 @@ ACTIONS['.'] = ACTIONS['0.']
  * @param {string} text 
  */
 function push(text) {
-  
+
   console.debug("Current Stack:", STACK)
   if (IGNORE_SPACE.includes(text) || (isNumeric(text) && isNumeric(STACK.at(-1)))) {
     const prev = STACK.pop()
@@ -179,10 +200,17 @@ function initiate_keyinput() {
   })
 }
 
+function pywebview_init() {
+  if (!window.pywebview) return;
+
+  document.querySelector(".pywebview-drag-region").classList.add('pywebview')
+}
+
 function main() {
   capture_data()
   initiate_keyinput()
+  pywebview_init()
   window.system = system
 }
 
-main()
+document.addEventListener('DOMContentLoaded', main)

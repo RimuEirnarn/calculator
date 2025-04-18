@@ -17,35 +17,49 @@
 <body>
   <div class="wrapper pywebview-drag-region">
     <main id="app">
-      <div class="output-ctrl">
-        <div class="data">
-          <div id="input-buffer"></div>
-          <div id="output-buffer"></div>
+      <div id="calc">
+        <div class="output-ctrl">
+          <div class="data">
+            <div id="input-buffer"></div>
+            <div id="output-buffer"></div>
+          </div>
+        </div>
+        <div class="input-ctrl">
+          <div class="flex-row">
+            <button type="button" data-capture class="action-ctrl">c</button>
+            <button type="button" data-capture class="op-ctrl">^</button>
+            <button type="button" data-capture class="op-ctrl">%</button>
+            <button type="button" data-capture class="op-special">=</button>
+          </div>
+          <div class="flex-row">
+            <button type="button" data-capture class="op-num">7</button>
+            <button type="button" data-capture class="op-num">8</button>
+            <button type="button" data-capture class="op-num">9</button>
+            <button type="button" data-capture class="op-ctrl">+</button>
+          </div>
+          <div class="flex-row">
+            <button type="button" data-capture class="op-num">4</button>
+            <button type="button" data-capture class="op-num">5</button>
+            <button type="button" data-capture class="op-num">6</button>
+            <button type="button" data-capture class="op-ctrl">-</button>
+          </div>
+          <div class="flex-row">
+            <button type="button" data-capture class="op-num">1</button>
+            <button type="button" data-capture class="op-num">2</button>
+            <button type="button" data-capture class="op-num">3</button>
+            <button type="button" data-capture class="op-ctrl">/</button>
+          </div>
+          <div class="flex-row">
+            <button type="button" data-capture class="op-num">0</button>
+            <button type="button" data-capture class="op-num">0.</button>
+            <button type="button" data-capture class="op-num">00</button>
+            <button type="button" data-capture class="op-ctrl">*</button>
+          </div>
         </div>
       </div>
-      <div>
-        <div class="input-ctrl grid">
-          <button type="button" data-capture class="action-ctrl">c</button>
-          <button type="button" data-capture class="op-ctrl">^</button>
-          <button type="button" data-capture class="op-ctrl">%</button>
-          <button type="button" data-capture class="op-special">=</button>
-          <button type="button" data-capture class="op-num">7</button>
-          <button type="button" data-capture class="op-num">8</button>
-          <button type="button" data-capture class="op-num">9</button>
-          <button type="button" data-capture class="op-ctrl">+</button>
-          <button type="button" data-capture class="op-num">4</button>
-          <button type="button" data-capture class="op-num">5</button>
-          <button type="button" data-capture class="op-num">6</button>
-          <button type="button" data-capture class="op-ctrl">-</button>
-          <button type="button" data-capture class="op-num">1</button>
-          <button type="button" data-capture class="op-num">2</button>
-          <button type="button" data-capture class="op-num">3</button>
-          <button type="button" data-capture class="op-ctrl">/</button>
-          <button type="button" data-capture class="op-num">0</button>
-          <button type="button" data-capture class="op-num">0.</button>
-          <button type="button" data-capture class="op-num">00</button>
-          <button type="button" data-capture class="op-ctrl">*</button>
-        </div>
+      <div id="history">
+
+      </div>
     </main>
   </div>
 </body>
