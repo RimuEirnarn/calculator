@@ -4,6 +4,10 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+function isFunction(token) {
+  return typeof token === "string" && token in functions;
+}
+
 const OPERATORS_PRECEDENCE = {
   '+': 1,
   '-': 1,
@@ -14,6 +18,14 @@ const OPERATORS_PRECEDENCE = {
 }
 
 const OPERATORS = ['+', '/', '^', '-', '*']
+const functions = {
+  'sin': Math.sin,
+  'cos': Math.cos,
+  'tan': Math.tan,
+  'log': Math.log,
+  'sqrt': Math.sqrt,
+  'abs': Math.abs
+}
 
 function get(val, def = undefined) {
   if (val in OPERATORS_PRECEDENCE)
@@ -51,6 +63,19 @@ function process(expr) {
       return
     }
 
+    if (val in functions) {
+      const fn = functions[val];
+      const argCount = fn.length;
+
+      if (stack.length < argCount)
+        throw new Error(`Function '${val}' expects ${argCount} arguments`);
+
+      const args = stack.splice(stack.length - argCount, argCount);
+      const result = fn(...args);
+      stack.push(result);
+      return;
+    }
+
     if (val in OPERATORS_PRECEDENCE) {
       while (stack.length != 0 && stack[-1] != '(' && get(stack.at(-1), 0) > OPERATORS_PRECEDENCE[val] || get(stack.at(-1), 0) == OPERATORS_PRECEDENCE[val] && !(val in RIGHT_ASSOCIATIVE))
         output.push(stack.pop())
@@ -58,6 +83,7 @@ function process(expr) {
       last_was_num = false
       return
     }
+
     if (val == '(') {
       stack.push(val)
       last_was_num = false
@@ -68,6 +94,10 @@ function process(expr) {
       while (stack.length != 0 && stack.at(-1) != '(')
         output.push(stack.pop())
       stack.pop()
+
+      if (isFunction(stack.at(-1))) {
+        output.push(stack.pop()); // Pop the function name
+      }
       last_was_num = false
       return
     }
@@ -142,4 +172,4 @@ function evaluate(expression, require_process = false) {
   return stack[0]
 }
 
-export { evaluate, isNumeric }
+export { evaluate, isNumeric, functions }

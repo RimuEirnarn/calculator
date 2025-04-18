@@ -82,6 +82,7 @@ const ACTIONS = {
       } catch (err) {
         system.stdout.clear()
         system.stdout.write('Error!')
+        console.error(err)
       }
     }
   },
@@ -92,6 +93,7 @@ const ACTIONS = {
       system.stdout.clear()
       system.stdout.write(evaluate_to)
     } catch (err) {
+      console.error(err)
       console.debug(":3")
     }
   },
@@ -107,12 +109,17 @@ const ACTIONS = {
   '8': () => push('8'),
   '9': () => push('9'),
 
+  '(': () => push('('),
+  ')': () => push(')'),
+
   '+': () => push('+'),
   '-': () => push('-'),
   '*': () => push('*'),
   '/': () => push('/'),
   '%': () => push('%'),
   '^': () => push('^'),
+  'sqrt': () => push('sqrt'),
+  '3.14': () => push(Math.PI.toString()),
   'clear': () => {
     STACK.length = 0
     system.stdin.clear()
@@ -140,6 +147,14 @@ ACTIONS['.'] = ACTIONS['0.']
 function push(text) {
 
   console.debug("Current Stack:", STACK)
+  if (isNumeric(text) && STACK.at(-1) == '-' && (STACK.at(-2) == undefined || STACK.at(-2) == '(')) {
+    const prev = STACK.pop()
+    system.stdin.write(text)
+    STACK.push(prev + text)
+    ACTIONS.trace()
+    return;
+  }
+
   if (IGNORE_SPACE.includes(text) || (isNumeric(text) && isNumeric(STACK.at(-1)))) {
     const prev = STACK.pop()
     // base.innerText += text

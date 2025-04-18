@@ -1,3 +1,5 @@
+@import "https://www.nerdfonts.com/assets/css/webfont.css";
+
 :root {
   --font-size: 14px;
   --font-family: 'Fira Code', monospace;
@@ -52,11 +54,7 @@ button[data-capture] {
 
 .flex-row {
   display: flex;
-  gap: 0;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: stretch;
+  gap: var(--btn-margin);
   width: 100%;
   max-width: 100%;
   min-width: 100%;
@@ -64,11 +62,11 @@ button[data-capture] {
 }
 
 .flex-row>button {
-  flex-grow: 1;
+  flex: 1 1 0;
   box-sizing: border-box;
-  width: calc(25% - var(--btn-margin) - var(--btn-rl-padding));
+  /* width: calc(25% - var(--btn-margin) - var(--btn-rl-padding)); */
   /* max-width: calc(25% - var(--btn-margin) - var(--btn-rl-padding)); */
-  min-width: calc(25% - var(--btn-margin) - var(--btn-rl-padding));
+  /* min-width: calc(25% - var(--btn-margin) - var(--btn-rl-padding)); */
 
   background-color: var(--btn-operator);
   color: black;
@@ -138,6 +136,7 @@ button[data-capture] {
 
   padding-bottom: 0.25rem;
   box-sizing: border-box;
+  /* display: flex; */
 }
 
 .data {
