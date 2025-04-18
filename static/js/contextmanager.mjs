@@ -84,40 +84,121 @@ function createResultDiv(x, onclick) {
 }
 
 /**
- * Creates a context menu element
+ * Creates a context menu 
+ * @param {() => void} closer 
  * @returns {HTMLElement} The context menu div
  */
-function createContextMenu() {
+function createContextMenu(closer) {
   const menu = document.createElement('div');
   menu.className = 'context-menu';
 
-  const copyBtn = document.createElement('button');
-  copyBtn.type = 'button';
-  copyBtn.textContent = 'Copy';
-  copyBtn.className = 'menu-btn copy-btn';
-
-  const deleteBtn = document.createElement('button');
-  deleteBtn.type = 'button';
-  deleteBtn.textContent = 'Delete';
-  deleteBtn.className = 'menu-btn delete-btn';
+  const copyBtn = createMenuButton('Copy', 'menu-btn copy-btn', 'gbl-copy-menu', copyResult, closer, menu);
+  const deleteBtn = createMenuButton('Delete', 'menu-btn delete-btn', 'gbl-delete-menu', removeResult, closer, menu)
 
   menu.append(copyBtn, deleteBtn);
   return menu;
 }
 
 /**
+ * 
+ * @param {HTMLElement} base 
+ * @param {Array.<{content: string, classes: string, id: string, fn: (id: string, container: HTMLElement) => void}>} schema 
+ * @param {string} menu_id 
+ */
+function createContextMenuBySchema(base, schema, menu_id) {
+  base.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+    const menu = document.createElement('div')
+    menu.className = 'context-menu'
+    menu.dataset.id = menu_id
+
+    // Check if there's menu instance
+    if (document.querySelector(`.context-menu[data-id="${menu_id}"]`)) return;
+
+
+    document.body.appendChild(menu)
+    const closeMenu = () => {
+      menu.style.display = 'none';
+      document.removeEventListener('click', closeMenu);
+      menu.remove()
+    };
+
+    menu.style.display = 'block';
+    menu.style.position = 'absolute'
+    menu.style.left = `${event.clientX}px`;
+    menu.style.top = `${event.clientY}px`;
+
+    schema.forEach(element => {
+      menu.append(createMenuButton(element.content, element.classes, element.id, element.fn, closeMenu, menu))
+    });
+
+    document.addEventListener('click', closeMenu)
+  })
+}
+
+/**
+ * Create a context-menu button
+ * @param {string} content 
+ * @param {string} classes 
+ * @param {string} id 
+ * @param {(id: string, container: HTMLElement, event: Event) => void} fn
+ * @param {(menu: HTMLElement) => void} closer
+ * @param {HTMLElement} menu
+ */
+function createMenuButton(content, classes, id, fn, closer, menu) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.textContent = content
+  btn.className = classes
+  btn.dataset.id = id
+
+  btn.onclick = (event) => {
+    fn && fn(id, menu, event)
+    closer && closer(menu)
+  }
+
+  return btn
+}
+
+/**
+ * 
+ * @param {HTMLElement} menu 
+ * @param {string} id
+ * @param {HTMLElement} container
+ * @param {() => void} closer
+ */
+function initContextMenu(menu, id, container, closer) {
+  // Update button actions
+  menu.querySelector('.copy-btn').onclick = () => {
+    copyResult(id, container);
+    closer();
+  };
+
+  menu.querySelector('.delete-btn').onclick = () => {
+    removeResult(id, container);
+    closer();
+  };
+}
+
+/**
  * Sets up right-click context menu for an element
  * @param {HTMLElement} element - The element to attach the menu to
  */
-function setupContextMenu(element) {
+function setupContextMenu(element, seeder = createContextMenu, initializer = initContextMenu) {
   element.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     const id = element.dataset.id;
     const container = element.parentElement;
 
     let menu = document.querySelector('.context-menu');
+
+    const closeMenu = () => {
+      menu.style.display = 'none';
+      document.removeEventListener('click', closeMenu);
+    };
+
     if (!menu) {
-      menu = createContextMenu();
+      menu = seeder();
       document.body.appendChild(menu);
     }
 
@@ -126,24 +207,10 @@ function setupContextMenu(element) {
     menu.style.left = `${e.clientX}px`;
     menu.style.top = `${e.clientY}px`;
 
-    const closeMenu = () => {
-      menu.style.display = 'none';
-      document.removeEventListener('click', closeMenu);
-    };
-
     document.addEventListener('click', closeMenu);
 
-    // Update button actions
-    menu.querySelector('.copy-btn').onclick = () => {
-      copyResult(id, container);
-      closeMenu();
-    };
-
-    menu.querySelector('.delete-btn').onclick = () => {
-      removeResult(id, container);
-      closeMenu();
-    };
+    initializer(menu, id, container, closeMenu)
   });
 }
 
-export { setupContextMenu, createResultDiv, createContextMenu, removeResult, copyResult }
+export { setupContextMenu, createResultDiv, createContextMenu, removeResult, copyResult, createContextMenuBySchema }

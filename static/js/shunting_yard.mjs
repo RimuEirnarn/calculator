@@ -18,6 +18,10 @@ const OPERATORS_PRECEDENCE = {
 }
 
 const OPERATORS = ['+', '/', '^', '-', '*']
+/**
+ * Functions
+ * @type {Object.<string, (...x: number) => number>}
+ */
 const functions = {
   'sin': Math.sin,
   'cos': Math.cos,

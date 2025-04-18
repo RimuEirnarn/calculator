@@ -1,7 +1,7 @@
 import { randomString, HistoryEntries } from "./history.mjs";
 import { IOSystem } from "./iosystem.mjs";
-import { evaluate, isNumeric } from "./shunting_yard.mjs";
-import { createResultDiv } from "./contextmanager.mjs";
+import { evaluate, functions, isNumeric } from "./shunting_yard.mjs";
+import { createContextMenu, createContextMenuBySchema, createResultDiv, setupContextMenu } from "./contextmanager.mjs";
 
 const IGNORE_SPACE = ['.']
 const NO_FOLLOW = ['0', '00']
@@ -137,6 +137,27 @@ const ACTIONS = {
   },
 }
 
+/**
+ * @type {Object.<string, (element: HTMLElement, menu: HTMLElement, id: string, container: HTMLElement) => void>}
+ */
+const CTX_ACTIONS = {
+  'sqrt': (element, menu, id, container) => {
+    
+  }
+}
+
+const CTX_SCHEMA = {
+  'sqrt': (() => {
+    const obj = []
+    for (const key in functions) {
+      if (Object.prototype.hasOwnProperty.call(functions, key)) {
+        obj.push({content: key, classes: 'menu-btn', id: `functions/${key}`, fn: () => push(key)})
+      }
+    }
+    return obj
+  })()
+}
+
 ACTIONS['c'] = ACTIONS.clear
 ACTIONS['.'] = ACTIONS['0.']
 
@@ -196,6 +217,16 @@ function capture_data() {
   console.debug('capturing events')
 }
 
+function init_context_actions() {
+  document.querySelectorAll('[data-capture][data-context-menu]').forEach(element => {
+    const val = element.getAttribute('data-id') || element.innerText || ""
+
+    if (val in CTX_SCHEMA)
+      console.debug(val, CTX_SCHEMA[val])
+      createContextMenuBySchema(element, CTX_SCHEMA[val], `menu/${val}`)
+  })
+}
+
 function initiate_keyinput() {
   document.addEventListener('keydown', (event) => {
     if (event.key in ACTIONS) {
@@ -222,6 +253,7 @@ function pywebview_init() {
 }
 
 function main() {
+  init_context_actions()
   capture_data()
   initiate_keyinput()
   pywebview_init()
