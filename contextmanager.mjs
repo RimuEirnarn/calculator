@@ -28,9 +28,7 @@ function copyResult(id, container) {
   const element = container.querySelector(`[data-id="${id}"]`);
   if (!element) return;
 
-  const textToCopy = Array.from(element.querySelectorAll('p'))
-    .map(p => p.textContent)
-    .join('\n');
+  const textToCopy = element.querySelector(`[data-id="${id}/stdin"]`).textContent
 
   navigator.clipboard.writeText(textToCopy)
     .then(() => {
@@ -58,10 +56,12 @@ function createResultDiv(x, onclick) {
   div.className = 'result-container'; // Add class for styling
 
   const exprP = document.createElement('p');
+  exprP.dataset.id = `${x.id}/stdin`
   exprP.className = 'text-align-end';
   exprP.textContent = x.stdin;
 
   const resultP = document.createElement('p');
+  resultP.dataset.id = `${x.id}/stdout`
   resultP.className = 'text-align-end';
   resultP.textContent = `=> ${x.result}`;
 
