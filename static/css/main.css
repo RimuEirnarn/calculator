@@ -95,7 +95,7 @@ button[data-capture] {
 }
 
 #calc,
-#history {
+#history, #memory {
   margin: 0;
   background-color: var(--primary);
 }
@@ -109,14 +109,6 @@ button[data-capture] {
   padding: 0.5rem;
   padding-top: 0;
   padding-bottom: 0;
-}
-
-#history {
-  box-sizing: border-box;
-  max-width: var(--history-width);
-  min-width: var(--history-width);
-  min-height: var(--height);
-  max-height: var(--height);
 }
 
 
@@ -264,4 +256,58 @@ body {
   100% {
     opacity: 0;
   }
+}
+
+.hidden {
+  display: none;
+}
+
+#history-tabs {
+  box-sizing: border-box;
+  max-width: var(--history-width);
+  min-width: var(--history-width);
+  min-height: var(--height);
+  max-height: var(--height);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary);
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--highlight);
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab-button {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: var(--font-family);
+}
+
+.tab-button.active {
+  font-weight: bold;
+  background-color: var(--btn-operator);
+}
+
+.tab-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: none;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+
+.tab-content:not(.hidden) {
+  display: block;
 }

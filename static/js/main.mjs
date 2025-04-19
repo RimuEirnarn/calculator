@@ -1,7 +1,7 @@
-import { randomString, HistoryEntries } from "./history.mjs";
+import { randomString, history, memory } from "./history.mjs";
 import { IOSystem } from "./iosystem.mjs";
 import { evaluate, functions, isNumeric, process } from "./shunting_yard.mjs";
-import { createContextMenu, createContextMenuBySchema, createResultDiv, setupContextMenu } from "./contextmanager.mjs";
+import { createContextMenuBySchema, createResultDiv } from "./contextmanager.mjs";
 
 const IGNORE_SPACE = ['.']
 const NO_FOLLOW = ['0', '00']
@@ -11,7 +11,7 @@ const INPUT_BUFFER = "#input-buffer"
 const OUTPUT_BUFFER = "#output-buffer"
 const INPUT_PREVENT = ['Enter', 'Backspace', '/']
 const history_selector = "#history"
-const history = new HistoryEntries()
+const memory_selector = "#memory"
 
 history.register_push((x) => {
   const hist = document.querySelector(history_selector)
@@ -28,6 +28,24 @@ history.register_push((x) => {
     system.stdout.write(x.result)
   })
   hist.appendChild(rendered)
+})
+
+memory.register_push((x) => {
+  const mem = document.querySelector(memory_selector)
+  if (!mem) {
+    console.warn("DOM for memory is not found")
+    return
+  }
+
+  const render = createResultDiv(x, (e) => {
+    system.stdin.clear()
+    system.stdin.write(x.stdin)
+    STACK.length = 0
+    STACK.push(...x.expr)
+    system.stdout.clear()
+    system.stdout.write(x.result)
+  })
+  mem.appendChild(render)
 })
 
 const system = {
@@ -74,7 +92,7 @@ const ACTIONS = {
     if (STACK.length != 0) {
       try {
         const evaluate_to = evaluate(STACK, true)
-        history.push({id: randomString(16), expr: [...STACK], stdin: system.stdin.read(), result: evaluate_to})
+        history.push({ id: randomString(16), expr: [...STACK], stdin: system.stdin.read(), result: evaluate_to })
         STACK.length = 0
         system.stdin.clear()
         system.stdin.write(evaluate_to)
@@ -142,7 +160,7 @@ const ACTIONS = {
  */
 const CTX_ACTIONS = {
   'sqrt': (element, menu, id, container) => {
-    
+
   }
 }
 
@@ -151,7 +169,7 @@ const CTX_SCHEMA = {
     const obj = []
     for (const key in functions) {
       if (Object.prototype.hasOwnProperty.call(functions, key)) {
-        obj.push({content: key, classes: 'menu-btn', id: `functions/${key}`, fn: () => push(key)})
+        obj.push({ content: key, classes: 'menu-btn', id: `functions/${key}`, fn: () => push(key) })
       }
     }
     return obj
@@ -223,7 +241,7 @@ function init_context_actions() {
 
     if (val in CTX_SCHEMA)
       console.debug(val, CTX_SCHEMA[val])
-      createContextMenuBySchema(element, CTX_SCHEMA[val], `menu/${val}`)
+    createContextMenuBySchema(element, CTX_SCHEMA[val], `menu/${val}`)
   })
 }
 
@@ -252,7 +270,23 @@ function pywebview_init() {
   document.querySelector(".pywebview-drag-region").classList.add('pywebview')
 }
 
+function initiateMemory() {
+  const mem = document.querySelector(memory_selector)
+  memory.forEach((x) => {
+    const rendered = createResultDiv(x, (e) => {
+      system.stdin.clear()
+      system.stdin.write(x.stdin)
+      STACK.length = 0
+      STACK.push(...x.expr)
+      system.stdout.clear()
+      system.stdout.write(x.result)
+    })
+    mem.append(rendered)
+  })
+}
+
 function main() {
+  initiateMemory()
   init_context_actions()
   capture_data()
   initiate_keyinput()
@@ -260,6 +294,23 @@ function main() {
   window.system = system
   window.evaluate = evaluate
   window.process = process
+
+  const tabButtons = document.querySelectorAll(".tab-button");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      // Remove active class from all buttons
+      tabButtons.forEach(btn => btn.classList.remove("active"));
+      // Hide all tab contents
+      tabContents.forEach(content => content.classList.add("hidden"));
+
+      // Activate the clicked tab
+      button.classList.add("active");
+      const targetTab = button.getAttribute("data-tab");
+      document.getElementById(`${targetTab}`).classList.remove("hidden");
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', main)

@@ -1,11 +1,16 @@
+import { history, memory } from "./history.mjs";
+
 /**
  * Memory-safe removal of a result element
  * @param {string} id - The ID of the element to remove
  * @param {HTMLElement} container - Parent container holding the results
+ * @param {Event} _
+ * @param {import("./history.mjs").CalcHistory} context  
  */
-function removeResult(id, container) {
+function removeResult(id, container, _, context) {
   const element = container.querySelector(`[data-id="${id}"]`);
   if (element) {
+    history.remove(id)
     // Clean up event listeners first
     const clone = element.cloneNode(true);
     element.replaceWith(clone);
@@ -23,8 +28,10 @@ function removeResult(id, container) {
  * Copies the result content to clipboard
  * @param {string} id - The ID of the element to copy
  * @param {HTMLElement} container - Parent container holding the results
+ * @param {Event} _
+ * @param {import("./history.mjs").CalcHistory} __  
  */
-function copyResult(id, container) {
+function copyResult(id, container, _, __) {
   const element = container.querySelector(`[data-id="${id}"]`);
   if (!element) return;
 
@@ -43,6 +50,23 @@ function copyResult(id, container) {
     .catch(err => console.error('Failed to copy:', err));
 }
 
+/**
+ * Save the result to Memory tab
+ * @param {string} id - The ID of the element to copy
+ * @param {HTMLElement} container - Parent container holding the results
+ * @param {Event} _
+ * @param {import("./history.mjs").CalcHistory} context  
+ */
+function SaveToMemory(id, container, _, context) {
+  const element = container.querySelector(`[data-id="${id}"]`)
+  const memo_id = context.id
+  if (!element) return;
+
+  const entry = history.getItem(memo_id)
+  console.log(memo_id, entry)
+  if (entry)
+    memory.push(entry)
+}
 
 /**
  * Creates a result div element with the given data
@@ -66,7 +90,7 @@ function createResultDiv(x, onclick) {
   resultP.textContent = `=> ${x.result}`;
 
   div.append(exprP, resultP);
-  setupContextMenu(div); // Add right-click functionality
+  setupContextMenu(div, createContextMenu, initContextMenu, x); // Add right-click functionality
 
   // Click handler for replace functionality
   div.addEventListener('click', (e) => {
@@ -85,17 +109,19 @@ function createResultDiv(x, onclick) {
 
 /**
  * Creates a context menu 
- * @param {() => void} closer 
+ * @param {() => void} closer
+ * @param {Object.<string, any>} context
  * @returns {HTMLElement} The context menu div
  */
-function createContextMenu(closer) {
+function createContextMenu(closer, context) {
   const menu = document.createElement('div');
   menu.className = 'context-menu';
 
-  const copyBtn = createMenuButton('Copy', 'menu-btn copy-btn', 'gbl-copy-menu', copyResult, closer, menu);
-  const deleteBtn = createMenuButton('Delete', 'menu-btn delete-btn', 'gbl-delete-menu', removeResult, closer, menu)
+  const copyBtn = createMenuButton('Copy', 'menu-btn copy-btn', 'gbl-copy-menu', copyResult, closer, menu, context);
+  const deleteBtn = createMenuButton('Delete', 'menu-btn delete-btn', 'gbl-delete-menu', removeResult, closer, menu, context)
+  const SaveBtn = createMenuButton("Save to Memory", 'menu-btn', 'gbl-save-menu', SaveToMemory, closer, menu, context)
 
-  menu.append(copyBtn, deleteBtn);
+  menu.append(copyBtn, deleteBtn, SaveBtn);
   return menu;
 }
 
@@ -141,11 +167,12 @@ function createContextMenuBySchema(base, schema, menu_id) {
  * @param {string} content 
  * @param {string} classes 
  * @param {string} id 
- * @param {(id: string, container: HTMLElement, event: Event) => void} fn
+ * @param {(id: string, container: HTMLElement, event: Event, context: Object.<string, any>) => void} fn
  * @param {(menu: HTMLElement) => void} closer
  * @param {HTMLElement} menu
+ * @param {Object.<string, any>} context 
  */
-function createMenuButton(content, classes, id, fn, closer, menu) {
+function createMenuButton(content, classes, id, fn, closer, menu, context) {
   const btn = document.createElement('button')
   btn.type = 'button'
   btn.textContent = content
@@ -153,7 +180,7 @@ function createMenuButton(content, classes, id, fn, closer, menu) {
   btn.dataset.id = id
 
   btn.onclick = (event) => {
-    fn && fn(id, menu, event)
+    fn && fn(id, menu, event, context)
     closer && closer(menu)
   }
 
@@ -183,8 +210,9 @@ function initContextMenu(menu, id, container, closer) {
 /**
  * Sets up right-click context menu for an element
  * @param {HTMLElement} element - The element to attach the menu to
+ * @param {Object.<string, any>} context 
  */
-function setupContextMenu(element, seeder = createContextMenu, initializer = initContextMenu) {
+function setupContextMenu(element, seeder = createContextMenu, initializer = initContextMenu, context) {
   element.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     const id = element.dataset.id;
@@ -198,7 +226,7 @@ function setupContextMenu(element, seeder = createContextMenu, initializer = ini
     };
 
     if (!menu) {
-      menu = seeder();
+      menu = seeder(closeMenu, context);
       document.body.appendChild(menu);
     }
 
