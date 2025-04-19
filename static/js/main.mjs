@@ -1,6 +1,6 @@
 import { randomString, HistoryEntries } from "./history.mjs";
 import { IOSystem } from "./iosystem.mjs";
-import { evaluate, functions, isNumeric } from "./shunting_yard.mjs";
+import { evaluate, functions, isNumeric, process } from "./shunting_yard.mjs";
 import { createContextMenu, createContextMenuBySchema, createResultDiv, setupContextMenu } from "./contextmanager.mjs";
 
 const IGNORE_SPACE = ['.']
@@ -258,6 +258,8 @@ function main() {
   initiate_keyinput()
   pywebview_init()
   window.system = system
+  window.evaluate = evaluate
+  window.process = process
 }
 
 document.addEventListener('DOMContentLoaded', main)

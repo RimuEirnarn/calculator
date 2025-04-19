@@ -4,6 +4,8 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+const isIdentifier = token => /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(token) && !(token in functions);
+
 function isFunction(token) {
   return typeof token === "string" && token in functions;
 }
@@ -42,17 +44,39 @@ function get(val, def = undefined) {
 const RIGHT_ASSOCIATIVE = ['^']
 
 /**
+ * Create a function then store & return it to functions
+ * @param {string} name 
+ * @param {string[]} args 
+ * @param {string} expression 
+ */
+function define(name, args, expression) {
+  const fn = (...argv) => {
+    const context = {}
+    args.forEach((param, i) => {
+      context[param] = argv[i]
+    })
+
+    return evaluate(expression, true, context)
+  }
+
+  fn.argument_length = args.length
+
+  functions[name] = fn
+  return fn
+}
+
+/**
  * Expression
  * @param {string[] | string} expr 
  */
 function process(expr) {
-  console.debug('processing...')
+  // console.debug('processing...')
   const stack = []
   const output = []
   let last_was_num = false
-  const expr_ = typeof expr == 'string' ? expr_.split(' ') : expr
+  const expr_ = typeof expr == 'string' ? expr.split(' ') : expr
   expr_.forEach((val, index) => {
-    if (isNumeric(val)) {
+    if (isNumeric(val) || isIdentifier(val)) {
       output.push(val)
       last_was_num = true
       return
@@ -109,14 +133,17 @@ function process(expr) {
  * Evaluate current format execution
  * @param {string | string[]} expression 
  * @param {boolean} [require_process=false] 
+ * @param {Object.<string, number>?} context
  * @returns 
  */
-function evaluate(expression, require_process = false) {
-  console.debug("evaluating")
+function evaluate(expression, require_process = false, context) {
+  // console.debug("evaluating")
   const stack = []
   const _base = (typeof expression == 'string' ? expression.split(' ') : expression)
   const tokens = require_process ? process(_base).split(' ') : _base
-  console.debug(tokens)
+  if (require_process) {
+    console.debug("Evaluated: ", tokens)
+  }
 
   tokens.forEach(token => {
     if (isNumeric(token)) {
@@ -157,10 +184,17 @@ function evaluate(expression, require_process = false) {
       return
     }
 
+    if (context) {
+      if (token in context) {
+        stack.push(context[token])
+        return
+      }
+    }
+
     if (token in functions) {
       console.debug(token)
       const fn = functions[token];
-      const argCount = fn.length;
+      const argCount = fn.length || fn.argument_length;
 
       if (stack.length < argCount)
         throw new Error(`Function '${token}' expects ${argCount} arguments`);
@@ -182,4 +216,6 @@ function evaluate(expression, require_process = false) {
   return stack[0]
 }
 
-export { evaluate, isNumeric, functions }
+define('custom', ['x'], 'x + 5')
+
+export { evaluate, process, isNumeric, define, functions }
