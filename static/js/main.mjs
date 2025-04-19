@@ -285,7 +285,18 @@ function initiateMemory() {
   })
 }
 
+function isMobile() {
+  return /Mobi/.test(window.navigator.userAgent)
+}
+
 function main() {
+  if (isMobile()) {
+    const app = document.querySelector('#app')
+
+    if (!app) return;
+    app.innerHTML = "<div style='max-height: 100dvh; height: 100dvh; min-height: 100dvh; max-width: 100dvw; min-width: 100dvw; width: 100dvw'>Mobile view is not yet supported</div>"
+    return
+  }
   initiateMemory()
   init_context_actions()
   capture_data()
